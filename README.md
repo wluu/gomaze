@@ -1,2 +1,2 @@
-# gomaze
-Simple maze in golang
+# gomaze (WIP)
+Building a maze to learn golan.
