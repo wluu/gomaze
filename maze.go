@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	_ "github.com/JoelOtter/termloop"
 )
 
@@ -47,14 +48,23 @@ func genMaze(w, h int) [][]cell {
 	cur := coord{}
 	maze[cur.x][cur.y].visited = true
 
-	// 2. While there are unvisited cells
+	// While there are unvisited cells
 	for unvisitedCellsIn(maze) {
+
+		// If the current cell has any neighbors which have not been visited
+		if neighbors, ok := unvisitedNeighbors(cur, maze); ok {
+			fmt.Println(neighbors)
+			os.Exit(0)
+
+			// 1. Choose randomly one of the unvisited neighbors
+			// 2. Push the current cell to the stack
+			// 3. Remove the wall between the current cell and the chosen cell
+			// 4. Make the chosen cell the current cell and mark it as visited
+		}
+
 		/*
-			1. If the current cell has any neighbours which have not been visited
-				1. Choose randomly one of the unvisited neighbours
-				2. Push the current cell to the stack
-				3. Remove the wall between the current cell and the chosen cell
-				4. Make the chosen cell the current cell and mark it as visited
+
+
 			2. Else if stack is not empty
 				1. Pop a cell from the stack
 				2. Make it the current cell
@@ -77,6 +87,36 @@ func unvisitedCellsIn(maze [][]cell) bool {
 }
 
 // returns a list of unvisited cells
-func unvisitedNeighbors(maze [][]cell) []string {
-	return nil
+func unvisitedNeighbors(cur coord, maze [][]cell) ([]coord, bool) {
+	width := len(maze)
+	height := len(maze[0])
+	neighbors := []coord{}
+
+	addNeighbor := func(x, y int) {
+		if !maze[x][y].visited {
+			neighbors = append(neighbors, coord{x: x, y: y})
+		}
+	}
+
+	// didn't pass north border
+	if x, y := cur.x, cur.y - 1; y >= 0 {
+		addNeighbor(x, y)
+	}
+
+	// didn't pass east border
+	if x, y := cur.x + 1, cur.y; x < width {
+		addNeighbor(x, y)
+	}
+
+	// didn't pass south border
+	if x, y := cur.x, cur.y + 1; y < height {
+		addNeighbor(x, y)
+	}
+
+	// didn't pass west border
+	if x, y := cur.x - 1, cur.y; x >= 0 {
+		addNeighbor(x, y)
+	}
+
+	return neighbors, len(neighbors) > 0
 }
