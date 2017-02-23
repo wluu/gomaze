@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
+	"math/rand"
 	_ "github.com/JoelOtter/termloop"
 )
 
@@ -53,11 +55,14 @@ func genMaze(w, h int) [][]cell {
 
 		// If the current cell has any neighbors which have not been visited
 		if neighbors, ok := unvisitedNeighbors(cur, maze); ok {
-			fmt.Println(neighbors)
+			// 1. Choose randomly one of the unvisited neighbors
+			r := rand.New(rand.NewSource(time.Now().UnixNano()))
+			randNeighbor := neighbors[r.Intn(len(neighbors))]
+
+			// 2. Push the current cell to the stack
+			fmt.Println(randNeighbor)
 			os.Exit(0)
 
-			// 1. Choose randomly one of the unvisited neighbors
-			// 2. Push the current cell to the stack
 			// 3. Remove the wall between the current cell and the chosen cell
 			// 4. Make the chosen cell the current cell and mark it as visited
 		}
