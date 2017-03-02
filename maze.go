@@ -5,23 +5,65 @@ import (
 	"os"
 	"time"
 	"math/rand"
-	_ "github.com/JoelOtter/termloop"
+	tl "github.com/JoelOtter/termloop"
+)
+
+const (
+	WIDTH  = 5
+	HEIGHT = 5
 )
 
 func main() {
-	// g := tl.NewGame()
+	g := tl.NewGame()
 
-	// empty maze for now
-	// l := tl.NewBaseLevel(tl.Cell{})
-	// g.Screen().SetLevel(l)
+	l := tl.NewBaseLevel(tl.Cell{})
+	g.Screen().SetLevel(l)
 
-	maze := genMaze(5, 3)
-	fmt.Println(maze)
+	maze := genMaze(WIDTH, HEIGHT)
 
-	// populate the maze
-	// l.AddEntity(tl.NewRectangle(i, j, 1, 1, tl.ColorWhite))
+	// drawing the maze
+	for x := 0; x < WIDTH; x++ {
+		for y := 0; y < HEIGHT; y++ {
+			cell := ""
 
-	// g.Start()
+			// check corner piece first
+			if x == 0 {
+				if y == 0 {
+					cell = "┌"
+				} else if y == HEIGHT - 1 {
+					cell = "└"
+				}
+			} else if x == WIDTH - 1 {
+				if y == 0 {
+					cell = "┐"
+				} else if y == HEIGHT - 1 {
+					cell = "┘"
+				}
+			}
+
+			wall := maze[x][y].w
+			if wall.north  {
+				cell += "─"
+			}
+			if wall.east {
+				cell += "│"
+			}
+			if wall.south {
+				cell += "─"
+			}
+			if wall.west {
+				cell += "│"
+			}
+
+			fmt.Println(cell)
+			os.Exit(0)
+
+			e := tl.NewEntityFromCanvas(x, y, tl.CanvasFromString(cell))
+			l.AddEntity(e)
+		}
+	}
+
+	g.Start()
 }
 
 // x-y coordinates for the cells
@@ -45,6 +87,14 @@ func genMaze(w, h int) [][]cell {
 	maze := make([][]cell, w)
 	for i, _ := range maze {
 		col := make([]cell, h)
+		for j, _ := range col {
+			// by default, the booleans in the walls struct will be initialized to false
+			// setting them to true to be more idiomatic
+			col[j].w.north = true
+			col[j].w.east = true
+			col[j].w.south = true
+			col[j].w.west = true
+		}
 		maze[i] = col
 	}
 
@@ -73,25 +123,20 @@ func genMaze(w, h int) [][]cell {
 			// 3. Remove the wall between the current cell and the chosen cell
 			markWall(cur, randNeighbor, maze)
 
-			fmt.Println("cur", cur)
-			fmt.Println("neighbor", randNeighbor)
-			fmt.Println(maze)
-			os.Exit(0)
-
 			// 4. Make the chosen cell the current cell and mark it as visited
 			cur = randNeighbor
+		} else if len(backtrack) > 0 { 	// 2. Else if stack is not empty
+			// 1. Pop a cell from the stack i.e. get the last element from the slice
+			// 2. Make it the current cell
+			cur = backtrack[len(backtrack) - 1]
+			backtrack = backtrack[:len(backtrack) - 1]
 		}
-		/*
-			2. Else if stack is not empty
-				1. Pop a cell from the stack
-				2. Make it the current cell
-		*/
 	}
 
 	return maze
 }
 
-// mark the wall between the current cell and the chosen neighbor
+// remove the wall between the current cell and the chosen neighbor
 func markWall(cur, neighbor coord, maze [][]cell) {
 	// NOTE: just want to see how this looks
 	switch {
@@ -100,13 +145,13 @@ func markWall(cur, neighbor coord, maze [][]cell) {
 		switch {
 		// south wall (relative to cur)
 		case cur.y < neighbor.y:
-			maze[cur.x][cur.y].w.south = true
-			maze[neighbor.x][neighbor.y].w.north = true
+			maze[cur.x][cur.y].w.south = false
+			maze[neighbor.x][neighbor.y].w.north = false
 
 		// north wall (relative to cur)
 		case neighbor.y < cur.y:
-			maze[cur.x][cur.y].w.north = true
-			maze[neighbor.x][neighbor.y].w.south = true
+			maze[cur.x][cur.y].w.north = false
+			maze[neighbor.x][neighbor.y].w.south = false
 		}
 
 	// on the east/west plane
@@ -114,13 +159,13 @@ func markWall(cur, neighbor coord, maze [][]cell) {
 		switch {
 		// east wall (relative to cur)
 		case cur.x < neighbor.x:
-			maze[cur.x][cur.y].w.east = true
-			maze[neighbor.x][neighbor.y].w.west = true
+			maze[cur.x][cur.y].w.east = false
+			maze[neighbor.x][neighbor.y].w.west = false
 
 		// west wall (relative to cur)
 		case neighbor.x < cur.x:
-			maze[cur.x][cur.y].w.west = true
-			maze[neighbor.x][neighbor.y].w.east = true
+			maze[cur.x][cur.y].w.west = false
+			maze[neighbor.x][neighbor.y].w.east = false
 		}
 	}
 }
