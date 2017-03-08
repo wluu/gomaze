@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"os"
+	_ "os"
 	"time"
 	"math/rand"
 	tl "github.com/JoelOtter/termloop"
 )
 
 const (
-	WIDTH  = 5
-	HEIGHT = 5
+	WIDTH  = 50
+	HEIGHT = 50
 )
 
 func main() {
@@ -25,40 +25,50 @@ func main() {
 	for x := 0; x < WIDTH; x++ {
 		for y := 0; y < HEIGHT; y++ {
 			cell := ""
-
-			// check corner piece first
-			if x == 0 {
-				if y == 0 {
-					cell = "┌"
-				} else if y == HEIGHT - 1 {
-					cell = "└"
-				}
-			} else if x == WIDTH - 1 {
-				if y == 0 {
-					cell = "┐"
-				} else if y == HEIGHT - 1 {
-					cell = "┘"
-				}
-			}
-
 			wall := maze[x][y].w
-			if wall.north  {
-				cell += "─"
+
+			if wall.north {
+				cell += "+--+\n"
+			} else {
+				cell += "\n"
 			}
-			if wall.east {
-				cell += "│"
+
+			if wall.west || wall.east {
+				if wall.west {
+					cell += "╎"
+					if wall.east {
+						cell += "  ╎\n"
+					} else {
+						cell += "\n"
+					}
+				} else if wall.east {
+					cell += "   ╎\n"
+				}
+			} else {
+				cell += "\n\n"
 			}
+
 			if wall.south {
-				cell += "─"
-			}
-			if wall.west {
-				cell += "│"
+				cell += "+--+"
 			}
 
 			fmt.Println(cell)
-			os.Exit(0)
 
-			e := tl.NewEntityFromCanvas(x, y, tl.CanvasFromString(cell))
+			canvasCell := tl.CanvasFromString(cell)
+			cellWidth := len(canvasCell) - 1
+			cellHeight := len(canvasCell[0]) - 1
+			coordX, coordY := 0, 0
+
+			if x != 0 && y != 0 {
+				coordX = x + cellWidth
+				coordY = y + cellHeight
+			} else if x == 0 && y != 0 {
+				coordY = y + cellHeight
+			} else if x != 0 && y == 0 {
+				coordX = x + cellWidth
+			}
+
+			e := tl.NewEntityFromCanvas(coordX, coordY, canvasCell)
 			l.AddEntity(e)
 		}
 	}
