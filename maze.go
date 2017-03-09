@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	_ "os"
 	"time"
@@ -8,29 +9,29 @@ import (
 	tl "github.com/JoelOtter/termloop"
 )
 
-const (
-	WIDTH  = 50
-	HEIGHT = 50
+var (
+	width  = flag.Int("width", 0, "width of maze")
+	height = flag.Int("height", 0, "height of maze")
 )
 
 func main() {
+	flag.Parse()
+
 	g := tl.NewGame()
 
 	l := tl.NewBaseLevel(tl.Cell{})
 	g.Screen().SetLevel(l)
 
-	maze := genMaze(WIDTH, HEIGHT)
+	maze := genMaze(*width, *height)
 
 	// drawing the maze
-	for x := 0; x < WIDTH; x++ {
-		for y := 0; y < HEIGHT; y++ {
+	for x := 0; x < *width; x++ {
+		for y := 0; y < *height; y++ {
 			cell := ""
 			wall := maze[x][y].w
 
 			if wall.north {
 				cell += "+--+\n"
-			} else {
-				cell += "\n"
 			}
 
 			if wall.west || wall.east {
@@ -53,27 +54,12 @@ func main() {
 			}
 
 			fmt.Println(cell)
-
-			canvasCell := tl.CanvasFromString(cell)
-			cellWidth := len(canvasCell) - 1
-			cellHeight := len(canvasCell[0]) - 1
-			coordX, coordY := 0, 0
-
-			if x != 0 && y != 0 {
-				coordX = x + cellWidth
-				coordY = y + cellHeight
-			} else if x == 0 && y != 0 {
-				coordY = y + cellHeight
-			} else if x != 0 && y == 0 {
-				coordX = x + cellWidth
-			}
-
-			e := tl.NewEntityFromCanvas(coordX, coordY, canvasCell)
-			l.AddEntity(e)
 		}
 	}
-
-	g.Start()
+	
+	// e := tl.NewEntityFromCanvas(coordX, coordY, canvasCell)
+	// l.AddEntity(e)
+	// g.Start()
 }
 
 // x-y coordinates for the cells
