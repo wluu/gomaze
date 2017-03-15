@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
+	tl "github.com/JoelOtter/termloop"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"time"
-	"math/rand"
-	tl "github.com/JoelOtter/termloop"
 )
 
 var (
@@ -86,14 +86,14 @@ type coord struct {
 
 type walls struct {
 	north bool
-	east bool
+	east  bool
 	south bool
-	west bool
+	west  bool
 }
 
 type cell struct {
 	visited bool
-	w walls
+	w       walls
 }
 
 func genMaze(w, h int) [][]cell {
@@ -138,11 +138,11 @@ func genMaze(w, h int) [][]cell {
 
 			// 4. Make the chosen cell the current cell and mark it as visited
 			cur = randNeighbor
-		} else if len(backtrack) > 0 { 	// 2. Else if stack is not empty
+		} else if len(backtrack) > 0 { // 2. Else if stack is not empty
 			// 1. Pop a cell from the stack i.e. get the last element from the slice
 			// 2. Make it the current cell
-			cur = backtrack[len(backtrack) - 1]
-			backtrack = backtrack[:len(backtrack) - 1]
+			cur = backtrack[len(backtrack)-1]
+			backtrack = backtrack[:len(backtrack)-1]
 		}
 	}
 
@@ -154,7 +154,7 @@ func markWall(cur, neighbor coord, maze [][]cell) {
 	// NOTE: just want to see how this looks
 	switch {
 	// on the north/south plane
-	case cur.x - neighbor.x == 0:
+	case cur.x-neighbor.x == 0:
 		switch {
 		// south wall (relative to cur)
 		case cur.y < neighbor.y:
@@ -168,7 +168,7 @@ func markWall(cur, neighbor coord, maze [][]cell) {
 		}
 
 	// on the east/west plane
-	case cur.y - neighbor.y == 0:
+	case cur.y-neighbor.y == 0:
 		switch {
 		// east wall (relative to cur)
 		case cur.x < neighbor.x:
@@ -196,22 +196,22 @@ func unvisitedNeighbors(cur coord, maze [][]cell) ([]coord, bool) {
 	}
 
 	// didn't pass north border
-	if x, y := cur.x, cur.y - 1; y >= 0 {
+	if x, y := cur.x, cur.y-1; y >= 0 {
 		addNeighbor(x, y)
 	}
 
 	// didn't pass east border
-	if x, y := cur.x + 1, cur.y; x < width {
+	if x, y := cur.x+1, cur.y; x < width {
 		addNeighbor(x, y)
 	}
 
 	// didn't pass south border
-	if x, y := cur.x, cur.y + 1; y < height {
+	if x, y := cur.x, cur.y+1; y < height {
 		addNeighbor(x, y)
 	}
 
 	// didn't pass west border
-	if x, y := cur.x - 1, cur.y; x >= 0 {
+	if x, y := cur.x-1, cur.y; x >= 0 {
 		addNeighbor(x, y)
 	}
 
