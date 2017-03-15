@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	_ "os"
+	"io/ioutil"
+	"log"
+	"os"
 	"time"
 	"math/rand"
 	tl "github.com/JoelOtter/termloop"
@@ -24,42 +25,58 @@ func main() {
 
 	maze := genMaze(*width, *height)
 
-	// drawing the maze
-	for x := 0; x < *width; x++ {
-		for y := 0; y < *height; y++ {
-			cell := ""
-			wall := maze[x][y].w
+	// write the maze to a file first
+	for y := 0; y < *height; y++ {
+		northWalls := ""
+		sideWalls := ""
+		southWalls := ""
 
-			if wall.north {
-				cell += "+--+\n"
-			}
+		for x := 0; x < *width; x++ {
+			walls := maze[x][y].w
 
-			if wall.west || wall.east {
-				if wall.west {
-					cell += "╎"
-					if wall.east {
-						cell += "  ╎\n"
-					} else {
-						cell += "\n"
-					}
-				} else if wall.east {
-					cell += "   ╎\n"
-				}
+			if walls.north {
+				northWalls += "+--+"
 			} else {
-				cell += "\n\n"
+				northWalls += "+  +"
 			}
 
-			if wall.south {
-				cell += "+--+"
+			if walls.west {
+				sideWalls += "|"
+			} else {
+				sideWalls += " "
 			}
 
-			fmt.Println(cell)
+			if walls.east {
+				sideWalls += "  |"
+			} else {
+				sideWalls += "   "
+			}
+
+			if walls.south {
+				southWalls += "+--+"
+			} else {
+				southWalls += "+  +"
+			}
 		}
+
+		file, err := os.OpenFile("./maze.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0777)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		file.WriteString(northWalls + "\n")
+		file.WriteString(sideWalls + "\n")
+		file.WriteString(southWalls + "\n")
 	}
-	
-	// e := tl.NewEntityFromCanvas(coordX, coordY, canvasCell)
-	// l.AddEntity(e)
-	// g.Start()
+
+	dat, err := ioutil.ReadFile("./maze.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	e := tl.NewEntityFromCanvas(1, 1, tl.CanvasFromString(string(dat)))
+	l.AddEntity(e)
+	g.Start()
 }
 
 // x-y coordinates for the cells
