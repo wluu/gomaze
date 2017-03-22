@@ -1,5 +1,5 @@
 # gomaze
-Building a maze to learn Go.
+Built a random maze generator to learn Go.
 
 Used [Termloop](https://github.com/JoelOtter/termloop), a terminal-based game engine, to render the maze.
 You should check it out! They have nice tutorials.
