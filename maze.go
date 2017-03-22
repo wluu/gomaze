@@ -15,6 +15,12 @@ var (
 
 func main() {
 	flag.Parse()
+	if *width == 0 {
+		log.Fatal("width cannot be 0.")
+	}
+	if *height == 0 {
+		log.Fatal("height cannot be 0.")
+	}
 
 	g := tl.NewGame()
 
@@ -28,7 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	e := tl.NewEntityFromCanvas(1, 1, tl.CanvasFromString(string(dat)))
+	e := tl.NewEntityFromCanvas(0, 0, tl.CanvasFromString(string(dat)))
 	l.AddEntity(e)
 	g.Start()
 }
