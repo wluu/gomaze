@@ -13,6 +13,36 @@ var (
 	height = flag.Int("height", 0, "height of maze")
 )
 
+type Player struct {
+	*tl.Entity
+	prevX int
+	prevY int
+	level *tl.BaseLevel
+}
+
+func (player *Player) Draw(screen *tl.Screen) {
+	screenWidth, screenHeight := screen.Size()
+	x, y := player.Position()
+	player.level.SetOffset(screenWidth/150-x, screenHeight/100-y)
+	player.Entity.Draw(screen)
+}
+
+func (player *Player) Tick(event tl.Event) {
+	if event.Type == tl.EventKey { // Is it a keyboard event?
+		player.prevX, player.prevY = player.Position()
+		switch event.Key { // If so, switch on the pressed key.
+		case tl.KeyArrowRight:
+			player.SetPosition(player.prevX+1, player.prevY)
+		case tl.KeyArrowLeft:
+			player.SetPosition(player.prevX-1, player.prevY)
+		case tl.KeyArrowUp:
+			player.SetPosition(player.prevX, player.prevY-1)
+		case tl.KeyArrowDown:
+			player.SetPosition(player.prevX, player.prevY+1)
+		}
+	}
+}
+
 func main() {
 	flag.Parse()
 	if *width == 0 {
@@ -22,19 +52,23 @@ func main() {
 		log.Fatal("height cannot be 0.")
 	}
 
-	g := tl.NewGame()
+	game := tl.NewGame()
+	level := tl.NewBaseLevel(tl.Cell{})
 
-	l := tl.NewBaseLevel(tl.Cell{})
-	g.Screen().SetLevel(l)
+	player := Player{
+		Entity: tl.NewEntity(0, 0, 1, 1),
+		level:  level,
+	}
+	level.AddEntity(&player)
+	game.Screen().SetLevel(level)
 
 	gen.MazeFile(*width, *height)
-
 	dat, err := ioutil.ReadFile(gen.MAZE_FILE)
 	if err != nil {
 		log.Fatal(err)
 	}
+	maze := tl.NewEntityFromCanvas(0, 0, tl.CanvasFromString(string(dat)))
+	level.AddEntity(maze)
 
-	e := tl.NewEntityFromCanvas(0, 0, tl.CanvasFromString(string(dat)))
-	l.AddEntity(e)
-	g.Start()
+	game.Start()
 }
