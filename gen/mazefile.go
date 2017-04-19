@@ -7,12 +7,15 @@ import (
 	"time"
 )
 
-const MAZE_FILE = "./maze.txt"
+// FileMaze is the text file which will contain the randomly generated maze
+const FileMaze = "./maze.txt"
 
+// MazeFile will generate a random maze and write it MazeFile; width and height
+// dimensions need to be specified
 func MazeFile(width, height int) {
 	// if the file already exists, delete it
-	if _, err := os.Stat(MAZE_FILE); err == nil {
-		os.Remove(MAZE_FILE)
+	if _, err := os.Stat(FileMaze); err == nil {
+		os.Remove(FileMaze)
 	}
 
 	maze := genMaze(width, height)
@@ -79,11 +82,15 @@ type cell struct {
 	w       walls
 }
 
+/*
+	using a simple algorithm to randomly generate the maze in memory:
+	https://en.wikipedia.org/wiki/Maze_generation_algorithm#Depth-first_search
+*/
 func genMaze(w, h int) [][]cell {
 	maze := make([][]cell, w)
-	for i, _ := range maze {
+	for i := range maze {
 		col := make([]cell, h)
-		for j, _ := range col {
+		for j := range col {
 			// by default, the booleans in the walls struct will be initialized to false
 			// setting them to true to be more idiomatic
 			col[j].w.north = true
@@ -96,11 +103,6 @@ func genMaze(w, h int) [][]cell {
 
 	backtrack := []coord{}
 	cur := coord{}
-
-	/*
-		something simple: recursive backtracker
-		https://en.wikipedia.org/wiki/Maze_generation_algorithm#Depth-first_search
-	*/
 
 	// While there are unvisited cells
 	for unvisitedCellsIn(maze) {

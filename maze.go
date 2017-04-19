@@ -13,6 +13,7 @@ var (
 	height = flag.Int("height", 0, "height of maze")
 )
 
+// Player is an interface method from JoelOtter/termloop
 type Player struct {
 	*tl.Entity
 	prevX int
@@ -20,6 +21,7 @@ type Player struct {
 	level *tl.BaseLevel
 }
 
+// Draw is an interface method from JoelOtter/termloop
 func (player *Player) Draw(screen *tl.Screen) {
 	screenWidth, screenHeight := screen.Size()
 	x, y := player.Position()
@@ -27,6 +29,7 @@ func (player *Player) Draw(screen *tl.Screen) {
 	player.Entity.Draw(screen)
 }
 
+// Tick is an interface method from JoelOtter/termloop
 func (player *Player) Tick(event tl.Event) {
 	if event.Type == tl.EventKey { // Is it a keyboard event?
 		player.prevX, player.prevY = player.Position()
@@ -63,7 +66,7 @@ func main() {
 	game.Screen().SetLevel(level)
 
 	gen.MazeFile(*width, *height)
-	dat, err := ioutil.ReadFile(gen.MAZE_FILE)
+	dat, err := ioutil.ReadFile(gen.FileMaze)
 	if err != nil {
 		log.Fatal(err)
 	}
