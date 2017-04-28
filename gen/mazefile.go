@@ -54,7 +54,7 @@ func MazeFile(width, height int) {
 			}
 		}
 
-		file, err := os.OpenFile(MAZE_FILE, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0777)
+		file, err := os.OpenFile(FileMaze, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0777)
 		if err != nil {
 			log.Fatal(err)
 		}
